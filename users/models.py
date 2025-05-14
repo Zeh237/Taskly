@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
@@ -57,6 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False) 
     otp = models.IntegerField(null=True, blank=True)
+    otp_created_at = models.DateTimeField(null=True, blank=True)
+    
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -90,6 +93,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         Returns the short name for the user (first name only).
         """
         return self.first_name
+    
+    def is_otp_expired(self):
+        """Check if OTP is older than 1 hour"""
+        if self.otp_created_at:
+            return timezone.now() > self.otp_created_at + timedelta(hours=1)
+        return True
     
     def __str__(self):
         return f"{self.get_full_name()} ({self.email})"

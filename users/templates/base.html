@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" class="{% if request.user.is_authenticated %}dark{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+    <!-- Theme Toggle -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="theme-toggle" class="p-2 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 transition-colors">
+            <span id="theme-icon" class="material-icons">dark_mode</span>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{% url 'accounts:home' %}" class="text-2xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
+                <span class="material-icons mr-2">fingerprint</span>
+                Taskly
+            </a>
+            
+            <nav class="flex items-center space-x-4">
+                {% if request.user.is_authenticated %}
+                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                        <span class="material-icons mr-1">account_circle</span>
+                        Profile
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                        <span class="material-icons mr-1">logout</span>
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                        <span class="material-icons mr-1">login</span>
+                        Login
+                    </a>
+                    <a href="{% url 'accounts:register' %}" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                        <span class="material-icons mr-1">person_add</span>
+                        Register
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                    <div class="px-4 py-3 rounded-md shadow-sm {% if message.tags == 'error' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
+            <p>&copy; {% now "Y" %} Taskly. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle Script -->
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+        
+        // Check for saved user preference or use system preference
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            themeIcon.textContent = 'light_mode';
+        } else {
+            html.classList.remove('dark');
+            themeIcon.textContent = 'dark_mode';
+        }
+        
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.textContent = 'light_mode';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeIcon.textContent = 'dark_mode';
+            }
+        });
+    </script>
+</body>
+</html>
