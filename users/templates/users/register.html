@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-10 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-8">
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+            <span class="material-icons mr-2">person_add</span>
+            Create Account
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">Join us today</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="space-y-4">
+            <div>
+                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    First Name
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        badge
+                    </span>
+                    {{ form.first_name }}
+                </div>
+                {% if form.first_name.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.first_name.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Last Name
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        badge
+                    </span>
+                    {{ form.last_name }}
+                </div>
+                {% if form.last_name.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.last_name.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        email
+                    </span>
+                    {{ form.email }}
+                </div>
+                {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.email.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Password
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        lock
+                    </span>
+                    {{ form.password }}
+                </div>
+                {% if form.password.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.password_confirm.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Confirm Password
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        lock
+                    </span>
+                    {{ form.password_confirm }}
+                </div>
+                {% if form.password_confirm.errors %}
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password_confirm.errors }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="pt-2">
+            <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                <span class="material-icons mr-2">how_to_reg</span>
+                Register
+            </button>
+        </div>
+    </form>
+
+    <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}" class="text-primary-600 dark:text-primary-400 hover:underline ml-1">
+            Sign in
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Custom form input styling for a more modern look */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        /* Apply base styles */
+        @apply w-full pl-10 pr-4 py-2 rounded-lg outline-none transition duration-200;
+
+        /* Light mode styles */
+        @apply border border-gray-300 bg-white text-gray-900;
+
+        /* Dark mode styles - adjusted for better contrast */
+        @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100;
+
+        /* Focus styles - using primary color */
+        @apply focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+
+        /* Add a subtle shadow on focus for depth */
+        @apply focus:shadow-md;
+    }
+
+    /* Placeholder styling */
+    input::placeholder {
+        @apply text-gray-400 dark:text-gray-500;
+    }
+
+    /* Error input styling */
+    input:invalid {
+        @apply border-red-500 dark:border-red-400;
+    }
+
+    /* Optional: Style for the icons inside the input fields */
+    .material-icons.absolute {
+        /* Ensure icons are vertically centered and have correct spacing */
+        @apply text-gray-400 dark:text-gray-500; /* Keep existing color */
+        left: 0.75rem; /* Adjust spacing from the left */
+        top: 50%;
+        transform: translateY(-50%);
+    }
+</style>
+{% endblock %}

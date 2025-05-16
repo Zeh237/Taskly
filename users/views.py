@@ -6,9 +6,12 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from django.contrib import messages
 from .forms import ForgotPasswordRequestForm, OtpVerificationForm, SetNewPasswordForm, UserRegistrationForm, UserLoginForm
 from .models import User
 import logging
+
+logger = logging.getLogger(__name__)
 
 def register_view(request):
     """
@@ -25,7 +28,7 @@ def register_view(request):
             otp = random.randint(100000, 999999)
             user.otp = otp
             user.otp_created_at = timezone.now()
-            logging.debug("user created")
+            logger.info("user created successfully")
             user.save()
 
             # Send Verification Email
@@ -51,8 +54,7 @@ def register_view(request):
 
             try:
                 send_mail(subject, message, from_email, recipient_list, fail_silently=False)
-                logging.debug("Email sent")
-                # Create and pass the verification form with the user's email pre-filled
+                logger.info("Email sent successfully")
                 verify_form = OtpVerificationForm(initial={'email': user.email})
                 return redirect(reverse('accounts:verify_email') + f'?email={user.email}')
             except Exception as e:
@@ -79,7 +81,6 @@ def verify_email_view(request):
     otp_from_get = request.GET.get('otp')
 
     if request.method == 'POST':
-        print('here')
         form = OtpVerificationForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
@@ -167,27 +168,42 @@ def login_view(request):
     """
     View for user login.
     Handles displaying the login form and authenticating users.
+    Also handles redirecting users who were trying to accept a project invitation
+    before logging in.
     """
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
         if form.is_valid():
-            # Get the authenticated user object from the form's clean method
+            # Get the authenticated user
             user = form.get_user()
             if user is not None:
                 # Check if the user is active
                 if user.is_active:
                     login(request, user)
+                    
+                    # Check if there's an invitation token stored in the session
+                    invitation_token = request.session.pop('invitation_token', None)
+                    if invitation_token:
+                        return redirect(reverse('accept_project_invite', args=[invitation_token]))
+
+                    # If no invitation token, redirect to the home page
                     return redirect('accounts:home')
+
                 else:
-                    # User is not active, inform them to verify email
                     form.add_error(None, "Your account is not active. Please check your email to verify.")
+                    messages.error(request, "Your account is not active. Please check your email to verify.")
+
             else:
                  form.add_error(None, "Invalid email or password.")
-        pass 
+                 messages.error(request, "Invalid email or password.")
     else:
         form = UserLoginForm()
 
-    return render(request, 'users/login.html', {'form': form})
+    context = {
+        'form': form
+    }
+    return render(request, 'users/login.html', context)
+
 
 
 def logout_view(request):
@@ -296,7 +312,7 @@ def forgot_password_verify_view(request):
             if user.otp is not None and str(user.otp) == otp_from_get:
                 # Store email in session for the next step
                 request.session['reset_email'] = email_from_get
-                user.otp = None  # Clear OTP after successful verification
+                user.otp = None
                 user.save()
                 return redirect('forgot_password_reset')
             else:
@@ -339,10 +355,8 @@ def forgot_password_reset_view(request):
                 user.set_password(new_password)
                 user.save()
                 
-                # Clear the session
                 del request.session['reset_email']
                 
-                # Auto-login the user
                 user = authenticate(email=email, password=new_password)
                 login(request, user)
                 
