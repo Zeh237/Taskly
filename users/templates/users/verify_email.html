@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Verify Email{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-10 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-8">
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+            <span class="material-icons mr-2">verified</span>
+            Verify Your Email
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">
+            Enter the verification code sent to your email
+        </p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Error Messages -->
+        {% if form.non_field_errors %}
+            <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="space-y-4">
+            <div class="mb-4">
+                <label for="id_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        email
+                    </span>
+                    <input type="email" 
+                           name="email" 
+                           id="id_email" 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition duration-200"
+                           placeholder="Enter your email address"
+                           value="{{ form.email.value|default:'' }}"
+                           required>
+                </div>
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="id_otp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Verification Code
+                </label>
+                <div class="relative">
+                    <span class="material-icons absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                        password
+                    </span>
+                    <input type="text" 
+                           name="otp" 
+                           id="id_otp" 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition duration-200"
+                           placeholder="Enter 6-digit OTP"
+                           maxlength="6"
+                           minlength="6"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           value="{{ form.otp.value|default:'' }}"
+                           required>
+                </div>
+                {% if form.otp.errors %}
+                    {% for error in form.otp.errors %}
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Check your email for the 6-digit verification code
+                </p>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+            <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                <span class="material-icons mr-2">check_circle</span>
+                Verify Account
+            </button>
+        </div>
+    </form>
+
+    <!-- Resend Code Option -->
+    <div class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        Didn't receive a code?
+        <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline ml-1">
+            Resend verification code
+        </a>
+    </div>
+</div>
+{% endblock %}
