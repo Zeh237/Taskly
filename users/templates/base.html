@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Auth System{% endblock %}</title>
-    
-    <!-- Tailwind CSS -->
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,10 +29,9 @@
             }
         }
     </script>
-    
-    <!-- Material Icons -->
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <style>
         .material-icons {
             font-family: 'Material Icons';
@@ -51,24 +49,34 @@
             -webkit-font-smoothing: antialiased;
             vertical-align: middle;
         }
+        /* Custom style to prevent scrolling body when sidebar is open on mobile */
+        .overflow-hidden-y {
+            overflow-y: hidden;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
-    <!-- Theme Toggle -->
     <div class="fixed bottom-4 right-4 z-50">
         <button id="theme-toggle" class="p-2 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 transition-colors">
             <span id="theme-icon" class="material-icons">dark_mode</span>
         </button>
     </div>
 
-    <!-- Header -->
-    <header class="bg-white dark:bg-gray-800 shadow-sm">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="{% url 'accounts:home' %}" class="text-2xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
-                <span class="material-icons mr-2">fingerprint</span>
-                Taskly
-            </a>
-            
+    {# Adjusted z-index to be higher than the sidebar's z-40 #}
+    <header class="bg-white dark:bg-gray-800 shadow-sm fixed top-0 left-0 right-0 z-50">
+        {# Added md:ml-64 to the container to push content right on md and up screens #}
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center md:ml-64 md:pl-4">
+            <div class="flex items-center">
+                <button id="sidebar-toggle" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 mr-3">
+                    <span class="sr-only">Open sidebar</span>
+                    <span class="material-icons">menu</span>
+                </button>
+                <a href="{% url 'accounts:home' %}" class="text-2xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
+                    <span class="material-icons mr-2">fingerprint</span>
+                    Taskly
+                </a>
+            </div>
+
             <nav class="flex items-center space-x-4">
                 {% if request.user.is_authenticated %}
                     <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
@@ -93,8 +101,10 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    {% include 'layouts/sidebar.html' %}
+
+    {# Retained pt-20 for fixed header height, and md:ml-64 for sidebar width on medium and up screens #}
+    <main class="container mx-auto px-4 py-8 pt-20 md:ml-64">
         {% if messages %}
             <div class="mb-6">
                 {% for message in messages %}
@@ -104,26 +114,25 @@
                 {% endfor %}
             </div>
         {% endif %}
-        
+
         {% block content %}
         {% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8">
+    {# Adjusted margin-top to not overlap with main content #}
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 md:ml-64">
         <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
             <p>&copy; {% now "Y" %} Taskly. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Theme Toggle Script -->
     <script>
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const html = document.documentElement;
-        
+
         // Check for saved user preference or use system preference
-        if (localStorage.getItem('theme') === 'dark' || 
+        if (localStorage.getItem('theme') === 'dark' ||
             (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             html.classList.add('dark');
             themeIcon.textContent = 'light_mode';
@@ -131,7 +140,7 @@
             html.classList.remove('dark');
             themeIcon.textContent = 'dark_mode';
         }
-        
+
         // Toggle theme on button click
         themeToggle.addEventListener('click', () => {
             html.classList.toggle('dark');
@@ -143,6 +152,50 @@
                 themeIcon.textContent = 'dark_mode';
             }
         });
+
+        // --- Sidebar Toggle Script ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const mainContent = document.querySelector('main'); // Select the main content area
+        const footer = document.querySelector('footer'); // Select the footer
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            // Optional: Add overlay or dim background when sidebar is open on mobile
+            // Optional: Prevent scrolling of the main content when sidebar is open on mobile
+            // For preventing body scroll, you can toggle a class on the body
+            document.body.classList.toggle('overflow-hidden-y');
+        });
+
+        // Close sidebar when clicking outside on mobile (optional but good UX)
+        // Add an overlay element that appears with the sidebar on mobile
+        // and listen for clicks on the overlay to close the sidebar.
+        // For simplicity here, I'll just add a basic click listener on the main content area
+        // which might not be ideal if you have interactive elements there.
+        // A dedicated overlay is recommended.
+        mainContent.addEventListener('click', () => {
+            // Close sidebar only if it's currently visible on small screens
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) { // 768px is Tailwind's 'md' breakpoint
+                 sidebar.classList.add('-translate-x-full');
+                 document.body.classList.remove('overflow-hidden-y');
+            }
+        });
+         footer.addEventListener('click', () => {
+            // Close sidebar only if it's currently visible on small screens
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) { // 768px is Tailwind's 'md' breakpoint
+                 sidebar.classList.add('-translate-x-full');
+                 document.body.classList.remove('overflow-hidden-y');
+            }
+        });
+
+        // Close sidebar on window resize if it becomes visible on md+ screens
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full');
+                document.body.classList.remove('overflow-hidden-y'); // Ensure body scroll is enabled on larger screens
+            }
+        });
+        // --- End Sidebar Toggle Script ---
     </script>
 </body>
 </html>

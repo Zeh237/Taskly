@@ -212,7 +212,7 @@ def logout_view(request):
     Redirects to the login page or home page after logout.
     """
     logout(request)
-    return redirect('login')
+    return redirect('accounts:login')
 
 
 def forgot_password_request_view(request):
@@ -374,4 +374,4 @@ def forgot_password_reset_view(request):
 
 
 def home_view(request):
-    return HttpResponse("Hello World")
+    return redirect('project:dashboard')
