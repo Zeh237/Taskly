@@ -55,7 +55,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300 flex flex-col min-h-screen">
     <div class="fixed bottom-4 right-4 z-50">
         <button id="theme-toggle" class="p-2 rounded-full bg-primary-500 text-white shadow-lg hover:bg-primary-600 transition-colors">
             <span id="theme-icon" class="material-icons">dark_mode</span>
@@ -103,8 +103,7 @@
 
     {% include 'layouts/sidebar.html' %}
 
-    {# Retained pt-20 for fixed header height, and md:ml-64 for sidebar width on medium and up screens #}
-    <main class="container mx-auto px-4 py-8 pt-20 md:ml-64">
+    <main class="container mx-auto px-4 py-8 pt-20 md:ml-64 flex-grow">
         {% if messages %}
             <div class="mb-6">
                 {% for message in messages %}
@@ -119,7 +118,6 @@
         {% endblock %}
     </main>
 
-    {# Adjusted margin-top to not overlap with main content #}
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 md:ml-64">
         <div class="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400">
             <p>&copy; {% now "Y" %} Taskly. All rights reserved.</p>
