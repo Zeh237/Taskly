@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects - Taskly{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">My Projects</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {# Card to create a new project #}
+        <a href="{% url 'project:project_create' %}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col items-center justify-center text-center transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg border-2 border-dashed border-gray-300 dark:border-gray-600 text-primary-600 dark:text-primary-400">
+            <span class="material-icons text-6xl mb-2">add</span> {# Large plus icon #}
+            <h2 class="text-xl font-semibold">Create New Project</h2>
+        </a>
+
+        {% if projects %}
+            {% for project in projects %}
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col justify-between transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">{{ project.name }}</h2>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">{{ project.description|truncatechars:150 }}</p> {# Truncate description for brevity #}
+                    </div>
+                    <div class="mt-auto"> {# Push creator info to the bottom #}
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                            Created by: {{ project.created_by.get_full_name }}
+                        </p>
+                        {# Optional: Show number of members #}
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            Members: {{ project.memberships.count }}
+                        </p>
+                        <a href="{% url 'project:project_detail' pk=project.pk %}" class="inline-block bg-primary-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-600 transition-colors">
+                            View Project
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            {# This section is now less critical as the create card is always visible #}
+            {# You might keep it for an additional message or remove it depending on preference #}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center lg:col-span-2"> {# Use lg:col-span-2 to span across columns if no projects #}
+                <p class="text-gray-600 dark:text-gray-400 text-lg">No projects found. Click the card to create your first project!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

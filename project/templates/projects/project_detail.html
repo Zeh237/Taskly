@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.name }} - Taskly{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    {# Project Details Section #}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{{ project.name }}</h1>
+        <p class="text-gray-700 dark:text-gray-300 mb-4">{{ project.description }}</p>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+            <p>Created by: {{ project.created_by.get_full_name }} on {{ project.created_at|date:"F d, Y" }}</p>
+            {# Optional: Add update link if user is the creator #}
+            {% if request.user == project.created_by %}
+                <p class="mt-2">
+                    <a href="{% url 'project:project_update' pk=project.pk %}" class="text-primary-600 dark:text-primary-400 hover:underline">Edit Project</a>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Action Buttons #}
+    <div class="flex space-x-4 mb-8">
+        {# Button to trigger Members Modal #}
+        <button id="view-members-btn" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            View Members ({{ members.count }})
+        </button>
+
+        {# Button to trigger Add Member Modal (only for creator) #}
+        {% if request.user == project.created_by %} {# Adjust permission check as needed #}
+            <button id="add-member-btn" class="bg-green-500 text-white px-4 py-2 rounded-md font-medium hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                Add Member
+            </button>
+        {% endif %}
+    </div>
+
+    {# Members Modal #}
+    <div id="members-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto"> {# Added max-h and overflow for scrolling #}
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Project Members</h2>
+                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" onclick="closeModal('members-modal')">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            {% if members %}
+                <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for member in members %}
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 dark:text-gray-200">{{ member.user.get_full_name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ member.get_role_display }}</p>
+                            </div>
+                            {# Optional: Add remove member button if user has permission #}
+                            {% if request.user == project.created_by and member.user != request.user %}
+                                 <form action="{% url 'project:project_member_remove' pk=member.pk %}" method="post" onsubmit="return confirm('Are you sure you want to remove {{ member.user.get_full_name }} from this project?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-600 text-sm font-medium">
+                                        Remove
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-gray-600 dark:text-gray-400">No members yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Add Member / Invite Modal #}
+    <div id="add-member-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Add or Invite Member</h2>
+                <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" onclick="closeModal('add-member-modal')">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            {# Add Existing Member by Email Form #}
+            <div class="mb-6">
+                 <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Add Existing User</h3>
+                <form method="post">
+                    {% csrf_token %}
+
+                    {# Display form fields with Tailwind styling #}
+                    <div class="mb-4">
+                        {{ add_member_form.email.label_tag }}
+                        {{ add_member_form.email }}
+                        {% if add_member_form.email.errors %}
+                            {% for error in add_member_form.email.errors %}
+                                <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-6">
+                        {{ add_member_form.role.label_tag }}
+                        {{ add_member_form.role }}
+                         {% if add_member_form.role.errors %}
+                            {% for error in add_member_form.role.errors %}
+                                <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    {# Display non-field errors #}
+                    {% if add_member_form.non_field_errors %}
+                        <div class="mb-4">
+                            {% for error in add_member_form.non_field_errors %}
+                                <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {# Add a hidden input or change button name to identify the form submission #}
+                    <button type="submit" name="add_member_submit" class="w-full bg-primary-500 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50">
+                        Add Member
+                    </button>
+                </form>
+            </div>
+
+             {# Link to invite users by email (for users without accounts) #}
+            <div class="text-center">
+                 <p class="text-gray-700 dark:text-gray-300 mb-2">Or, invite a new user:</p>
+                 <a href="{% url 'project:project_invite' pk=project.pk %}" class="text-primary-600 dark:text-primary-400 hover:underline text-sm">Invite new users by email</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Function to open a modal
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+        document.body.classList.add('overflow-hidden'); // Prevent scrolling background
+    }
+
+    // Function to close a modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+        document.body.classList.remove('overflow-hidden'); // Restore scrolling
+    }
+
+    // Get the buttons that trigger the modals
+    const viewMembersBtn = document.getElementById('view-members-btn');
+    const addMemberBtn = document.getElementById('add-member-btn'); // This button might not exist if user is not creator
+
+    // Add event listeners to the buttons
+    if (viewMembersBtn) {
+        viewMembersBtn.addEventListener('click', () => {
+            openModal('members-modal');
+        });
+    }
+
+    if (addMemberBtn) { // Check if the button exists before adding listener
+        addMemberBtn.addEventListener('click', () => {
+            openModal('add-member-modal');
+        });
+    }
+
+    // Optional: Close modal when clicking outside the modal content
+    // You would typically add an overlay element and listen for clicks on it.
+    // For this basic example, clicking the modal background will close it.
+    document.getElementById('members-modal').addEventListener('click', (event) => {
+        if (event.target.id === 'members-modal') {
+            closeModal('members-modal');
+        }
+    });
+     document.getElementById('add-member-modal').addEventListener('click', (event) => {
+        if (event.target.id === 'add-member-modal') {
+            closeModal('add-member-modal');
+        }
+    });
+
+</script>
+
+{% endblock %}

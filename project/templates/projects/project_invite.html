@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Invite Member - {{ project.name }} - Taskly{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Invite Member to {{ project.name }}</h1>
+
+    <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <p class="text-gray-700 dark:text-gray-300 mb-6">
+            Send an email invitation to a new user to join this project.
+        </p>
+        <form method="post">
+            {% csrf_token %}
+
+            {# Display form fields with Tailwind styling #}
+            <div class="mb-4">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            {# Display non-field errors #}
+            {% if form.non_field_errors %}
+                <div class="mb-4">
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-primary-500 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50">
+                Send Invitation
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
