@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Taskly{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Total Projects</h2>
+                <p class="text-4xl font-bold text-primary-600 dark:text-primary-400">15</p> {# Dummy Data #}
+            </div>
+            <span class="material-icons text-primary-500 dark:text-primary-300 text-5xl">folder</span>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Tasks Due Soon</h2>
+                <p class="text-4xl font-bold text-red-600 dark:text-red-400">5</p> {# Dummy Data #}
+            </div>
+            <span class="material-icons text-red-500 dark:text-red-300 text-5xl">assignment</span>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Team Members</h2>
+                <p class="text-4xl font-bold text-green-600 dark:text-green-400">25</p> {# Dummy Data #}
+            </div>
+            <span class="material-icons text-green-500 dark:text-green-300 text-5xl">group</span>
+        </div>
+
+        <div class="lg:col-span-3 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">Recent Activity</h2>
+            <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                <li class="py-3">
+                    <p class="text-gray-800 dark:text-gray-200">Dummy User completed task "Finish Dashboard UI".</p> {# Dummy Data #}
+                    <p class="text-sm text-gray-500 dark:text-gray-400">2 hours ago</p> {# Dummy Data #}
+                </li>
+                <li class="py-3">
+                    <p class="text-gray-800 dark:text-gray-200">Dummy User added a new project "Marketing Campaign".</p> {# Dummy Data #}
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Yesterday</p> {# Dummy Data #}
+                </li>
+                 <li class="py-3">
+                    <p class="text-gray-800 dark:text-gray-200">Another User commented on task "Plan Sprint 2".</p> {# Dummy Data #}
+                    <p class="text-sm text-gray-500 dark:text-gray-400">3 days ago</p> {# Dummy Data #}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
